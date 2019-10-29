@@ -1,134 +1,152 @@
 <template>
-  <v-container>
-    <v-layout text-center wrap>
-      <v-flex xs12>
+  <v-container fluid>
+    <v-row>
+      <v-col cols="12">
         <v-img
           :src="require('../assets/logo.svg')"
           class="my-3"
           contain
           height="200"
         ></v-img>
-      </v-flex>
+      </v-col>
 
-      <v-flex mb-4>
-        <h1 class="display-2 font-weight-bold mb-3">
-          Welcome to Vuetify
-        </h1>
-        <p class="subheading font-weight-regular">
-          For help and collaboration with other Vuetify developers,
-          <br />please join our online
-          <a href="https://community.vuetifyjs.com" target="_blank"
-            >Discord Community</a
-          >
-        </p>
-      </v-flex>
+      <v-col cols="12">
+        <v-row justify="center">
+          <h1
+            class="display-2 font-weight-bold mb-3"
+          >Welcome to Knapsack-Problem</h1>
+          <p class="subheading font-weight-regular">
+            Дано:
+            <i>n</i> предметов с заданным весом и ценностью, размер рюкзака.
+            <br />Надо найти наиболее ценный набор предметов, который помещается в рюкзак.
+          </p>
+        </v-row>
+      </v-col>
 
-      <v-flex mb-5 xs12>
-        <h2 class="headline font-weight-bold mb-3">What's next?</h2>
+      <v-col cols="12">
+        <v-data-table
+          :headers="headers"
+          :items="items"
+          :items-per-page="-1"
+          class="elevation-1"
+          hide-default-footer
+        >
+          <template v-slot:item="{ item }">
+            <tr v-bind:class="[item.select ? 'green' : '']">
+              <td>
+                <v-text-field v-model="item.name"></v-text-field>
+              </td>
+              <td>
+                <v-text-field v-model="item.value" type="number"></v-text-field>
+              </td>
+              <td>
+                <v-text-field v-model="item.size" type="number"></v-text-field>
+              </td>
+            </tr>
+          </template>
+        </v-data-table>
+      </v-col>
 
-        <v-layout justify-center>
-          <a
-            v-for="(next, i) in whatsNext"
-            :key="i"
-            :href="next.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ next.text }}
-          </a>
-        </v-layout>
-      </v-flex>
-
-      <v-flex xs12 mb-5>
-        <h2 class="headline font-weight-bold mb-3">Important Links</h2>
-
-        <v-layout justify-center>
-          <a
-            v-for="(link, i) in importantLinks"
-            :key="i"
-            :href="link.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ link.text }}
-          </a>
-        </v-layout>
-      </v-flex>
-
-      <v-flex xs12 mb-5>
-        <h2 class="headline font-weight-bold mb-3">Ecosystem</h2>
-
-        <v-layout justify-center>
-          <a
-            v-for="(eco, i) in ecosystem"
-            :key="i"
-            :href="eco.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ eco.text }}
-          </a>
-        </v-layout>
-      </v-flex>
-    </v-layout>
+      <v-col cols="12">
+        <v-row justify="center">
+          <v-btn @click="knapsack()">test</v-btn>
+        </v-row>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue from 'vue'
+const faker = require('faker')
 
 export default Vue.extend({
   data: () => ({
-    ecosystem: [
-      {
-        text: "vuetify-loader",
-        href: "https://github.com/vuetifyjs/vuetify-loader"
-      },
-      {
-        text: "github",
-        href: "https://github.com/vuetifyjs/vuetify"
-      },
-      {
-        text: "awesome-vuetify",
-        href: "https://github.com/vuetifyjs/awesome-vuetify"
-      }
+    headers: [
+      { text: 'Название', value: 'name' },
+      { text: 'Ценность', value: 'value' },
+      { text: 'Вес', value: 'size' }
     ],
-    importantLinks: [
-      {
-        text: "Documentation",
-        href: "https://vuetifyjs.com"
-      },
-      {
-        text: "Chat",
-        href: "https://community.vuetifyjs.com"
-      },
-      {
-        text: "Made with Vuetify",
-        href: "https://madewithvuejs.com/vuetify"
-      },
-      {
-        text: "Twitter",
-        href: "https://twitter.com/vuetifyjs"
-      },
-      {
-        text: "Articles",
-        href: "https://medium.com/vuetify"
-      }
-    ],
-    whatsNext: [
-      {
-        text: "Explore components",
-        href: "https://vuetifyjs.com/components/api-explorer"
-      },
-      {
-        text: "Select a layout",
-        href: "https://vuetifyjs.com/layout/pre-defined"
-      },
-      {
-        text: "Frequently Asked Questions",
-        href: "https://vuetifyjs.com/getting-started/frequently-asked-questions"
-      }
+    items: [
+      { name: 'Молоко', value: 4, size: 1, select: false },
+      { name: 'Ноутбук', value: 40, size: 8, select: false },
+      { name: 'Пряники', value: 30, size: 8, select: false },
+      { name: 'Крекер', value: 6, size: 2, select: false },
+      { name: 'Брюки', value: 10, size: 1, select: false },
+      { name: 'Футболка', value: 7, size: 5, select: false },
+      { name: 'Бриллиант', value: 10, size: 2, select: false }
     ]
-  })
-});
+  }),
+  methods: {
+    knapsack(): string {
+      // faker.locale = 'ru'
+      for (let i = 0; i < 100; i++) {
+        console.log(faker.commerce.product())
+        i++
+      }
+
+      const bagSize: number = 8
+
+      const values = [0, ...this.items.map((item) => item.value)]
+      const weights = [0, ...this.items.map((item) => item.size)]
+      const N = this.items.length
+
+      const arrayGen = (m: number, n: number) => {
+        let M = new Array(bagSize + 1)
+        M[0] = new Array(bagSize + 1).fill(0)
+        for (let i = 1; i <= N; i++) {
+          M[i] = new Array(bagSize)
+        }
+        return M
+      }
+
+      let M = arrayGen(bagSize, N)
+      console.log('M: ', M)
+      let keepArr = arrayGen(bagSize, N)
+      console.log('keepArr: ', keepArr)
+
+      for (let i = 1; i <= N; i++) {
+        for (let j = 0; j <= bagSize; j++) {
+          if (weights[i] > j) {
+            // we can't add
+            M[i][j] = M[i - 1][j]
+            keepArr[i][j] = 0 // we can't keep this item
+          } else {
+            const valueIfLeft = M[i - 1][j]
+            const valueIfTaken = M[i - 1][j - weights[i]] + values[i]
+            if (valueIfTaken >= valueIfLeft) {
+              // maximize the value
+              M[i][j] = valueIfTaken
+              keepArr[i][j] = 1 // we can keep this item
+            } else {
+              M[i][j] = valueIfLeft
+              keepArr[i][j] = 0
+            }
+          }
+        }
+      }
+
+      console.log('M: ', M)
+      console.log('keepArr: ', keepArr)
+
+      let keptElements = []
+      let eleKey = bagSize
+      for (let i = N; i > 0; i--) {
+        if (keepArr[i][eleKey] == 1) {
+          keptElements.push(i - 1)
+          eleKey -= weights[i]
+        }
+      }
+      console.log('keptElements: ', keptElements)
+      console.log('eleKey: ', eleKey)
+
+      for (const el of keptElements) {
+        this.items[el].select = true
+      }
+
+      console.log('test')
+      return 'test'
+    }
+  }
+})
 </script>
