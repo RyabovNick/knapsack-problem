@@ -81,7 +81,6 @@ export default Vue.extend({
     knapsack(): string {
       // faker.locale = 'ru'
       for (let i = 0; i < 100; i++) {
-        console.log(faker.commerce.product())
         i++
       }
 
@@ -101,9 +100,7 @@ export default Vue.extend({
       }
 
       let M = arrayGen(bagSize, N)
-      console.log('M: ', M)
       let keepArr = arrayGen(bagSize, N)
-      console.log('keepArr: ', keepArr)
 
       for (let i = 1; i <= N; i++) {
         for (let j = 0; j <= bagSize; j++) {
@@ -126,9 +123,6 @@ export default Vue.extend({
         }
       }
 
-      console.log('M: ', M)
-      console.log('keepArr: ', keepArr)
-
       let keptElements = []
       let eleKey = bagSize
       for (let i = N; i > 0; i--) {
@@ -137,14 +131,11 @@ export default Vue.extend({
           eleKey -= weights[i]
         }
       }
-      console.log('keptElements: ', keptElements)
-      console.log('eleKey: ', eleKey)
 
       for (const el of keptElements) {
         this.items[el].select = true
       }
 
-      console.log('test')
       return 'test'
     }
   }
