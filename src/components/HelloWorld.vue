@@ -13,9 +13,13 @@
       <v-col cols="12">
         <v-row justify="center">
           <h1
-            class="display-2 font-weight-bold mb-3"
+            class="display-2 font-weight-bold mb-1 pa-1"
           >Welcome to Knapsack-Problem</h1>
-          <p class="subheading font-weight-regular">
+        </v-row>
+      </v-col>
+      <v-col cols="12">
+        <v-row justify="center">
+          <p class="subheading font-weight-regular pa-1">
             Дано:
             <i>n</i> предметов с заданным весом и ценностью, размер рюкзака.
             <br />Надо найти наиболее ценный набор предметов, который помещается в рюкзак.
@@ -23,33 +27,46 @@
         </v-row>
       </v-col>
 
-      <v-col cols="12">
-        <v-data-table
-          :headers="headers"
-          :items="items"
-          :items-per-page="-1"
-          class="elevation-1"
-          hide-default-footer
-        >
-          <template v-slot:item="{ item }">
-            <tr v-bind:class="[item.select ? 'green' : '']">
-              <td>
-                <v-text-field v-model="item.name"></v-text-field>
-              </td>
-              <td>
-                <v-text-field v-model="item.value" type="number"></v-text-field>
-              </td>
-              <td>
-                <v-text-field v-model="item.size" type="number"></v-text-field>
-              </td>
-            </tr>
-          </template>
-        </v-data-table>
+      <v-col cols="4" offset="4">
+        <v-row justify="center">
+          <v-text-field
+            type="number"
+            v-model.number="bagSize"
+            label="Введите размер рюкзака"
+            class="max-width"
+          ></v-text-field>
+        </v-row>
       </v-col>
 
       <v-col cols="12">
         <v-row justify="center">
-          <v-btn @click="knapsack()">test</v-btn>
+          <v-data-table
+            :headers="headers"
+            :items="items"
+            :items-per-page="-1"
+            class="elevation-1"
+            hide-default-footer
+          >
+            <template v-slot:item="{ item }">
+              <tr v-bind:class="[item.select ? 'green' : '']">
+                <td>
+                  <v-text-field v-model="item.name"></v-text-field>
+                </td>
+                <td>
+                  <v-text-field v-model="item.value" type="number"></v-text-field>
+                </td>
+                <td>
+                  <v-text-field v-model="item.size" type="number"></v-text-field>
+                </td>
+              </tr>
+            </template>
+          </v-data-table>
+        </v-row>
+      </v-col>
+
+      <v-col cols="12">
+        <v-row justify="center">
+          <v-btn @click="knapsack()">Найти предметы</v-btn>
         </v-row>
       </v-col>
     </v-row>
@@ -75,22 +92,23 @@ export default Vue.extend({
       { name: 'Брюки', value: 10, size: 1, select: false },
       { name: 'Футболка', value: 7, size: 5, select: false },
       { name: 'Бриллиант', value: 10, size: 2, select: false }
-    ]
+    ],
+    bagSize: 9,
+    itemsCount: 8
   }),
   methods: {
     knapsack(): string {
       // faker.locale = 'ru'
       for (let i = 0; i < 100; i++) {
+        // console.log(faker.commerce.product())
         i++
       }
-
-      const bagSize: number = 8
 
       const values = [0, ...this.items.map((item) => item.value)]
       const weights = [0, ...this.items.map((item) => item.size)]
       const N = this.items.length
 
-      const arrayGen = (m: number, n: number) => {
+      const arrayGen = (bagSize: number, N: number) => {
         let M = new Array(bagSize + 1)
         M[0] = new Array(bagSize + 1).fill(0)
         for (let i = 1; i <= N; i++) {
@@ -99,11 +117,11 @@ export default Vue.extend({
         return M
       }
 
-      let M = arrayGen(bagSize, N)
-      let keepArr = arrayGen(bagSize, N)
+      let M = arrayGen(this.bagSize, N)
+      let keepArr = arrayGen(this.bagSize, N)
 
       for (let i = 1; i <= N; i++) {
-        for (let j = 0; j <= bagSize; j++) {
+        for (let j = 0; j <= this.bagSize; j++) {
           if (weights[i] > j) {
             // we can't add
             M[i][j] = M[i - 1][j]
@@ -124,7 +142,7 @@ export default Vue.extend({
       }
 
       let keptElements = []
-      let eleKey = bagSize
+      let eleKey = this.bagSize
       for (let i = N; i > 0; i--) {
         if (keepArr[i][eleKey] == 1) {
           keptElements.push(i - 1)
@@ -132,12 +150,25 @@ export default Vue.extend({
         }
       }
 
+      for (const el of this.items) {
+        el.select = false
+      }
+
       for (const el of keptElements) {
         this.items[el].select = true
       }
 
       return 'test'
+    },
+    autoGenerate(count: number): boolean {
+      return true
     }
   }
 })
 </script>
+
+<style scoped>
+.max-width {
+  max-width: 220px;
+}
+</style>
