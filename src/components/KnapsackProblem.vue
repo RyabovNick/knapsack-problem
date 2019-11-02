@@ -111,7 +111,7 @@
 
       <v-col cols="12">
         <v-row justify="center">
-          <v-btn @click="knapsack()" color="success">Найти предметы</v-btn>
+          <v-btn @click="knapsackDynamic()" color="success">Найти предметы</v-btn>
         </v-row>
       </v-col>
 
@@ -170,14 +170,14 @@ export default Vue.extend({
     executionTime: [] as any[]
   }),
   methods: {
-    knapsack(): boolean {
+    knapsackDynamic(): boolean {
       const start: number = new Date().getTime()
-      const values = [0, ...this.items.map((item) => item.value)]
-      const weights = [0, ...this.items.map((item) => item.size)]
-      const N = this.items.length
+      const values: number[] = [0, ...this.items.map((item) => item.value)]
+      const weights: number[] = [0, ...this.items.map((item) => item.size)]
+      const N: number = this.items.length
 
-      let M = this.arrayGen(this.bagSize, N)
-      let keepArr = this.arrayGen(this.bagSize, N)
+      let M: any[] = this.arrayGen(this.bagSize, N)
+      let keepArr: any[] = this.arrayGen(this.bagSize, N)
 
       for (let i = 1; i <= N; i++) {
         for (let j = 0; j <= this.bagSize; j++) {
@@ -200,8 +200,8 @@ export default Vue.extend({
         }
       }
 
-      let keptElements = []
-      let eleKey = this.bagSize
+      let keptElements: number[] = []
+      let eleKey: number = this.bagSize
       for (let i = N; i > 0; i--) {
         if (keepArr[i][eleKey] == 1) {
           keptElements.push(i - 1)
@@ -271,8 +271,4 @@ export default Vue.extend({
 .max-width {
   max-width: 220px;
 }
-
-/* .max-width-add {
-  max-width: 500px;
-} */
 </style>

@@ -16,19 +16,19 @@
     </v-app-bar>
 
     <v-content>
-      <HelloWorld />
+      <KnapsackProblem />
     </v-content>
   </v-app>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import HelloWorld from './components/HelloWorld.vue'
+import KnapsackProblem from './components/KnapsackProblem.vue'
 
 export default Vue.extend({
   name: 'App',
   components: {
-    HelloWorld
+    KnapsackProblem
   },
   data: () => ({
     //
