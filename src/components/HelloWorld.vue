@@ -27,7 +27,9 @@
         </v-row>
       </v-col>
 
-      <v-col cols="4" offset="4">
+      <v-col cols="12">{{ executionTime }}</v-col>
+
+      <v-col cols="10" offset="1" sm="4" offset-sm="4">
         <v-row justify="center">
           <v-text-field
             type="number"
@@ -38,15 +40,84 @@
         </v-row>
       </v-col>
 
+      <v-col
+        cols="10"
+        offset="1"
+        sm="6"
+        offset-sm="3"
+        md="4"
+        offset-md="1"
+        lg="3"
+        offset-lg="3"
+      >
+        <v-text-field
+          class="pa-1"
+          v-model="newItem.name"
+          label="Название"
+          @input="addItemButtonState()"
+        ></v-text-field>
+      </v-col>
+      <v-col cols="4" md="2" lg="1">
+        <v-row justify="center">
+          <v-text-field
+            class="pa-1"
+            v-model="newItem.value"
+            type="number"
+            label="Ценность"
+          ></v-text-field>
+        </v-row>
+      </v-col>
+      <v-col cols="4" md="2" lg="1">
+        <v-row justify="center">
+          <v-text-field
+            class="pa-1"
+            v-model="newItem.size"
+            type="number"
+            label="Вес"
+          ></v-text-field>
+        </v-row>
+      </v-col>
+      <v-col cols="4" md="2" lg="1">
+        <v-row justify="center">
+          <v-btn
+            class="mx-2"
+            fab
+            dark
+            color="indigo"
+            @click="addItem()"
+            :disabled="disabled"
+          >
+            <v-icon dark>mdi-plus</v-icon>
+          </v-btn>
+        </v-row>
+      </v-col>
+
+      <v-col cols="3" offset="3">
+        <v-row justify="center">
+          <v-text-field
+            class="pa-1"
+            v-model="itemsCount"
+            type="number"
+            label="Кол-во предметов"
+          ></v-text-field>
+        </v-row>
+      </v-col>
+
+      <v-col cols="3">
+        <v-row justify="center">
+          <v-btn @click="autoGenerate()" color="success">Сгенерировать предметы</v-btn>
+        </v-row>
+      </v-col>
+
       <v-col cols="12">
         <v-row justify="center">
-          <v-data-table
-            :headers="headers"
-            :items="items"
-            :items-per-page="-1"
-            class="elevation-1"
-            hide-default-footer
-          >
+          <v-btn @click="knapsack()" color="success">Найти предметы</v-btn>
+        </v-row>
+      </v-col>
+
+      <v-col cols="12">
+        <v-row justify="center">
+          <v-data-table :headers="headers" :items="items" class="elevation-1">
             <template v-slot:item="{ item }">
               <tr v-bind:class="[item.select ? 'green' : '']">
                 <td>
@@ -61,12 +132,6 @@
               </tr>
             </template>
           </v-data-table>
-        </v-row>
-      </v-col>
-
-      <v-col cols="12">
-        <v-row justify="center">
-          <v-btn @click="knapsack()">Найти предметы</v-btn>
         </v-row>
       </v-col>
     </v-row>
@@ -94,31 +159,25 @@ export default Vue.extend({
       { name: 'Бриллиант', value: 10, size: 2, select: false }
     ],
     bagSize: 9,
-    itemsCount: 8
+    itemsCount: 8,
+    newItem: {
+      name: '',
+      value: 1,
+      size: 1,
+      select: false
+    },
+    disabled: true,
+    executionTime: [] as any[]
   }),
   methods: {
-    knapsack(): string {
-      // faker.locale = 'ru'
-      for (let i = 0; i < 100; i++) {
-        // console.log(faker.commerce.product())
-        i++
-      }
-
+    knapsack(): boolean {
+      const start: number = new Date().getTime()
       const values = [0, ...this.items.map((item) => item.value)]
       const weights = [0, ...this.items.map((item) => item.size)]
       const N = this.items.length
 
-      const arrayGen = (bagSize: number, N: number) => {
-        let M = new Array(bagSize + 1)
-        M[0] = new Array(bagSize + 1).fill(0)
-        for (let i = 1; i <= N; i++) {
-          M[i] = new Array(bagSize)
-        }
-        return M
-      }
-
-      let M = arrayGen(this.bagSize, N)
-      let keepArr = arrayGen(this.bagSize, N)
+      let M = this.arrayGen(this.bagSize, N)
+      let keepArr = this.arrayGen(this.bagSize, N)
 
       for (let i = 1; i <= N; i++) {
         for (let j = 0; j <= this.bagSize; j++) {
@@ -150,6 +209,8 @@ export default Vue.extend({
         }
       }
 
+      this.executionTime.push(new Date().getTime() - start)
+
       for (const el of this.items) {
         el.select = false
       }
@@ -158,9 +219,48 @@ export default Vue.extend({
         this.items[el].select = true
       }
 
-      return 'test'
+      return true
+    },
+    arrayGen: (bagSize: number, N: number) => {
+      let M = new Array(bagSize + 1)
+      M[0] = new Array(bagSize + 1).fill(0)
+      for (let i = 1; i <= N; i++) {
+        M[i] = new Array(bagSize)
+      }
+      return M
     },
     autoGenerate(count: number): boolean {
+      const newItemArray = []
+
+      for (let i = 0; i < this.itemsCount; i++) {
+        newItemArray.push({
+          name: faker.commerce.product(),
+          value: this.getRandomInt(1, 50),
+          size: this.getRandomInt(1, 15),
+          select: false
+        })
+      }
+
+      this.items = newItemArray
+
+      return true
+    },
+    getRandomInt(min: number, max: number): number {
+      min = Math.ceil(min)
+      max = Math.floor(max)
+      return Math.floor(Math.random() * (max - min)) + min //The maximum is exclusive and the minimum is inclusive
+    },
+    addItem(): boolean {
+      this.items.push({ ...this.newItem })
+      return true
+    },
+    addItemButtonState(): boolean {
+      if (this.newItem.name.length === 0) {
+        this.disabled = true
+        return true
+      }
+
+      this.disabled = false
       return true
     }
   }
@@ -171,4 +271,8 @@ export default Vue.extend({
 .max-width {
   max-width: 220px;
 }
+
+/* .max-width-add {
+  max-width: 500px;
+} */
 </style>
