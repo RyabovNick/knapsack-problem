@@ -27,7 +27,28 @@
         </v-row>
       </v-col>
 
-      <v-col cols="12">{{ executionTime }}</v-col>
+      <v-col cols="12">
+        <v-expansion-panels multiple>
+          <v-expansion-panel>
+            <v-expansion-panel-header>Время выполнения (мс)</v-expansion-panel-header>
+            <v-expansion-panel-content>{{ executionTime }}</v-expansion-panel-content>
+          </v-expansion-panel>
+          <v-expansion-panel>
+            <v-expansion-panel-header>Отобранные элементы</v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-data-table :items="selectedItems" :headers="headersSelected"></v-data-table>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+          <v-expansion-panel>
+            <v-expansion-panel-header>Выбранная ценность и вес</v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <label>Ценность: {{ selectedValue }}</label>
+              <v-spacer></v-spacer>
+              <label>Вес: {{ selectedSize }}</label>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
 
       <v-col cols="10" offset="1" sm="4" offset-sm="4">
         <v-row justify="center">
@@ -40,73 +61,87 @@
         </v-row>
       </v-col>
 
-      <v-col
-        cols="10"
-        offset="1"
-        sm="6"
-        offset-sm="3"
-        md="4"
-        offset-md="1"
-        lg="3"
-        offset-lg="3"
-      >
-        <v-text-field
-          class="pa-1"
-          v-model="newItem.name"
-          label="Название"
-          @input="addItemButtonState()"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="4" md="2" lg="1">
-        <v-row justify="center">
-          <v-text-field
-            class="pa-1"
-            v-model="newItem.value"
-            type="number"
-            label="Ценность"
-          ></v-text-field>
-        </v-row>
-      </v-col>
-      <v-col cols="4" md="2" lg="1">
-        <v-row justify="center">
-          <v-text-field
-            class="pa-1"
-            v-model="newItem.size"
-            type="number"
-            label="Вес"
-          ></v-text-field>
-        </v-row>
-      </v-col>
-      <v-col cols="4" md="2" lg="1">
-        <v-row justify="center">
-          <v-btn
-            class="mx-2"
-            fab
-            dark
-            color="indigo"
-            @click="addItem()"
-            :disabled="disabled"
-          >
-            <v-icon dark>mdi-plus</v-icon>
-          </v-btn>
-        </v-row>
-      </v-col>
+      <v-col cols="12">
+        <v-expansion-panels multiple class="max-width-expansion-panel">
+          <v-expansion-panel>
+            <v-expansion-panel-header>Добавить предмет</v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-text-field
+                class="pa-1"
+                v-model="newItem.name"
+                label="Название"
+                @input="addItemButtonState()"
+              ></v-text-field>
+              <v-text-field
+                class="pa-1"
+                v-model="newItem.value"
+                type="number"
+                label="Ценность"
+              ></v-text-field>
+              <v-text-field
+                class="pa-1"
+                v-model="newItem.size"
+                type="number"
+                label="Вес"
+              ></v-text-field>
 
-      <v-col cols="3" offset="3">
-        <v-row justify="center">
-          <v-text-field
-            class="pa-1"
-            v-model="itemsCount"
-            type="number"
-            label="Кол-во предметов"
-          ></v-text-field>
-        </v-row>
-      </v-col>
+              <v-btn
+                class="mx-2"
+                fab
+                dark
+                color="indigo"
+                @click="addItem()"
+                :disabled="disabled"
+              >
+                <v-icon dark>mdi-plus</v-icon>
+              </v-btn>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+          <v-expansion-panel>
+            <v-expansion-panel-header>Сгенерировать предметы</v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-text-field
+                class="pa-1"
+                v-model="itemsCount"
+                type="number"
+                label="Кол-во предметов"
+              ></v-text-field>
 
-      <v-col cols="3">
-        <v-row justify="center">
-          <v-btn @click="autoGenerate()" color="success">Сгенерировать предметы</v-btn>
-        </v-row>
+              <v-text-field
+                class="pa-1"
+                v-model.number="minGenerateValue"
+                type="number"
+                label="Мин. генерируемая ценность"
+              ></v-text-field>
+
+              <v-text-field
+                class="pa-1"
+                v-model.number="maxGenerateValue"
+                type="number"
+                label="Макс. генерируемая ценность"
+              ></v-text-field>
+
+              <v-text-field
+                class="pa-1"
+                v-model.number="minGenerateSize"
+                type="number"
+                label="Мин. генерируемый вес"
+              ></v-text-field>
+
+              <v-text-field
+                class="pa-1"
+                v-model.number="maxGenerateSize"
+                type="number"
+                label="Макс. генерируемый вес"
+              ></v-text-field>
+
+              <v-btn
+                @click="autoGenerate()"
+                color="success"
+              >Сгенерировать предметы</v-btn>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
       </v-col>
 
       <v-col cols="12">
@@ -149,6 +184,12 @@ export default Vue.extend({
       { text: 'Ценность', value: 'value' },
       { text: 'Вес', value: 'size' }
     ],
+    headersSelected: [
+      { text: 'id', value: 'index' },
+      { text: 'Название', value: 'name' },
+      { text: 'Ценность', value: 'value' },
+      { text: 'Вес', value: 'size' }
+    ],
     items: [
       { name: 'Молоко', value: 4, size: 1, select: false },
       { name: 'Ноутбук', value: 40, size: 8, select: false },
@@ -167,7 +208,14 @@ export default Vue.extend({
       select: false
     },
     disabled: true,
-    executionTime: [] as any[]
+    executionTime: [] as any[],
+    selectedItems: [] as any[],
+    selectedValue: 0,
+    selectedSize: 0,
+    minGenerateValue: 1,
+    maxGenerateValue: 50,
+    minGenerateSize: 1,
+    maxGenerateSize: 15
   }),
   methods: {
     knapsackDynamic(): boolean {
@@ -182,16 +230,16 @@ export default Vue.extend({
       for (let i = 1; i <= N; i++) {
         for (let j = 0; j <= this.bagSize; j++) {
           if (weights[i] > j) {
-            // we can't add
+            // не можем добавить, т.к. вес больше
             M[i][j] = M[i - 1][j]
-            keepArr[i][j] = 0 // we can't keep this item
+            keepArr[i][j] = 0 // не можем сохранить этот предмет
           } else {
             const valueIfLeft = M[i - 1][j]
             const valueIfTaken = M[i - 1][j - weights[i]] + values[i]
             if (valueIfTaken >= valueIfLeft) {
-              // maximize the value
+              // максимизируем значение
               M[i][j] = valueIfTaken
-              keepArr[i][j] = 1 // we can keep this item
+              keepArr[i][j] = 1 // берём данные предмет
             } else {
               M[i][j] = valueIfLeft
               keepArr[i][j] = 0
@@ -215,8 +263,20 @@ export default Vue.extend({
         el.select = false
       }
 
+      this.selectedItems = []
+      this.selectedValue = 0
+      this.selectedSize = 0
+
       for (const el of keptElements) {
         this.items[el].select = true
+        this.selectedValue += this.items[el].value
+        this.selectedSize += this.items[el].size
+        this.selectedItems.push({
+          index: el,
+          name: this.items[el].name,
+          value: this.items[el].value,
+          size: this.items[el].size
+        })
       }
 
       return true
@@ -235,8 +295,14 @@ export default Vue.extend({
       for (let i = 0; i < this.itemsCount; i++) {
         newItemArray.push({
           name: faker.commerce.product(),
-          value: this.getRandomInt(1, 50),
-          size: this.getRandomInt(1, 15),
+          value: this.getRandomInt(
+            this.minGenerateValue,
+            this.maxGenerateValue + 1
+          ),
+          size: this.getRandomInt(
+            this.minGenerateSize,
+            this.maxGenerateSize + 1
+          ),
           select: false
         })
       }
@@ -270,5 +336,10 @@ export default Vue.extend({
 <style scoped>
 .max-width {
   max-width: 220px;
+}
+
+.max-width-expansion-panel {
+  max-width: 500px;
+  margin: auto;
 }
 </style>
